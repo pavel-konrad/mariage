@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c57fcd84a63aa480189ef901c83e6cb0, type: 3}
+  m_Name: CardDatabase
+  m_EditorClassIdentifier: 
+  gameName: Prsi
+  deckName: Standard32
+  cards:
+  - {fileID: 11400000, guid: a33aa22e3797b4d75813e5c3fe926619, type: 2}
+  - {fileID: 11400000, guid: a1e692ec123af43b3bb704bdd74c5749, type: 2}
+  - {fileID: 11400000, guid: 3e58789a4ab39474bb91653b3dc971bc, type: 2}
+  - {fileID: 11400000, guid: a958fdc92972c433b8eaf35b38e93193, type: 2}
+  - {fileID: 11400000, guid: b69b04b3aaf9c444eb271a2ade9b8131, type: 2}
+  - {fileID: 11400000, guid: 353b935b3cdea4f76bcb884da2751c41, type: 2}
+  - {fileID: 11400000, guid: 3c01e6865dc0c4a34b18a738e4b9be29, type: 2}
+  - {fileID: 11400000, guid: 0935f988ddfbb4c92b9526854598bec6, type: 2}
+  - {fileID: 11400000, guid: 28104ec2a1dda483fb1ebbdc48019107, type: 2}
+  - {fileID: 11400000, guid: 4e726034395454eec87b2fe919f5579a, type: 2}
+  - {fileID: 11400000, guid: 3c1cd5f02237d45f4a32e38a450613a7, type: 2}
+  - {fileID: 11400000, guid: 39a22027b7be7463992864bc40518096, type: 2}
+  - {fileID: 11400000, guid: 17f42c806234b43e3a7f925cb20a6b78, type: 2}
+  - {fileID: 11400000, guid: ef848286981554691bb54c278a7b56f6, type: 2}
+  - {fileID: 11400000, guid: 54fd16c3a1911485db7e7974239a54a1, type: 2}
+  - {fileID: 11400000, guid: 69037961a5e6f4fe3bfa5fdde1343108, type: 2}
+  - {fileID: 11400000, guid: f174e779a2de4478b8002ace58ca626e, type: 2}
+  - {fileID: 11400000, guid: 6c3a8a629aaff4a28888a8ecbaa910de, type: 2}
+  - {fileID: 11400000, guid: 9576bbc58c43649f2888996320e60418, type: 2}
+  - {fileID: 11400000, guid: 6a3d0445760774eb180197d42d2fe3d7, type: 2}
+  - {fileID: 11400000, guid: 7b794544d1b7542618a7c058bd5fd312, type: 2}
+  - {fileID: 11400000, guid: 956ac20872a9d45b58dd1aac5a7f2ab6, type: 2}
+  - {fileID: 11400000, guid: 18d1683acb2564dc8a86ddfadba43001, type: 2}
+  - {fileID: 11400000, guid: f0cca298b1aba42c9b25868dd5265002, type: 2}
+  - {fileID: 11400000, guid: 2b6105a77bd1447cda575eb034663c42, type: 2}
+  - {fileID: 11400000, guid: 9833a61cac9ce44b7a980478084d6ccf, type: 2}
+  - {fileID: 11400000, guid: 96647dcccd4c54cff9e09f95e762113c, type: 2}
+  - {fileID: 11400000, guid: 82409672a42a747daa1ac002f7ee5e20, type: 2}
+  - {fileID: 11400000, guid: 04d211534dee54553a1606c87ce58774, type: 2}
+  - {fileID: 11400000, guid: ac2150d891f3e4822be3f1521de34159, type: 2}
+  - {fileID: 11400000, guid: 56ff0ccad685b4e6e9cd69efee6fd31f, type: 2}
+  - {fileID: 11400000, guid: 18189c347aee34afa941d204f2fc0fa9, type: 2}
+  gameSounds: {fileID: 0}

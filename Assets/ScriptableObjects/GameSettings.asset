@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ad3369b2fde140c4a7453b4bdd42635, type: 3}
+  m_Name: GameSettings
+  m_EditorClassIdentifier: 
+  startingCash: 1000
+  minBet: 1
+  maxBet: 100
+  cardsPerPlayer: 10
+  maxPlayers: 3
+  minPlayers: 3
+  aiThinkTime: 1.5
+  aiDifficultyLevel: 1
+  cardAnimationDuration: 0.5
+  dealCardDelay: 0.2
+  masterVolume: 1
+  musicVolume: 0.7
+  sfxVolume: 1
