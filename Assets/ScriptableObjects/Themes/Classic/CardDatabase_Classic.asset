@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c57fcd84a63aa480189ef901c83e6cb0, type: 3}
-  m_Name: Standard32_Database
+  m_Name: CardDatabase_Classic
   m_EditorClassIdentifier: 
-  gameName: Prsi
+  gameName: Mariage
   deckName: Standard32
   cards:
   - {fileID: 11400000, guid: 29e34694b3f8b48819589a501ec8df64, type: 2}

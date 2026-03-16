@@ -30,6 +30,7 @@ namespace MariasGame.UI
         private ICardDataProvider _cardDataProvider;
         private ICardThemeProvider _themeProvider;
         private bool _isEnemyCard = false; // Určuje, zda je to karta nepřítele (vždy rub)
+        private bool _flipOverride = false; // Explicitní FlipCard přebíjí _isEnemyCard
         
         void Awake()
         {
@@ -119,9 +120,18 @@ namespace MariasGame.UI
             }
             
             // Určit, zda má být karta lícem nahoru
-            // Pokud je to karta nepřítele, vždy zobrazit rub
-            bool shouldShowFaceUp = _isEnemyCard ? false : ShouldShowFaceUp(card.State);
-            isFaceUp = shouldShowFaceUp;
+            bool shouldShowFaceUp;
+            if (_flipOverride)
+            {
+                // Explicitní FlipCard() přebíjí automatickou logiku
+                shouldShowFaceUp = isFaceUp;
+            }
+            else
+            {
+                // Pokud je to karta nepřítele, vždy zobrazit rub
+                shouldShowFaceUp = _isEnemyCard ? false : ShouldShowFaceUp(card.State);
+                isFaceUp = shouldShowFaceUp;
+            }
             
             // Načíst data karty
             var cardData = _cardDataProvider.GetCardData(card.Suit, card.Rank);
@@ -240,6 +250,7 @@ namespace MariasGame.UI
         /// </summary>
         public void FlipCard(bool faceUp)
         {
+            _flipOverride = true;
             isFaceUp = faceUp;
             UpdateCardVisuals();
             

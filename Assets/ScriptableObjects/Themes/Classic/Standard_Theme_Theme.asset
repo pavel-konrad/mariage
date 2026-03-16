@@ -16,5 +16,5 @@ MonoBehaviour:
   themeDescription: Theme for Standard32 card deck
   themePreview: {fileID: 0}
   isUnlocked: 1
-  cardDatabase: {fileID: 11400000, guid: 8dcef09851684447c87c2eeef3f15bd5, type: 2}
+  cardDatabase: {fileID: 11400000, guid: 4d88f950e8f89468098c0d7b468b04b0, type: 2}
   cardBackSprite: {fileID: 0}

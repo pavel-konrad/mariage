@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using MariasGame.Core;
 
 namespace MariasGame.UI
@@ -12,10 +13,10 @@ namespace MariasGame.UI
     {
         [Header("UI References")]
         [SerializeField] private Image avatarImage;
-        [SerializeField] private Text nameText;
-        [SerializeField] private Text goldText;
-        [SerializeField] private Text pointsText;
-        [SerializeField] private Text cardCountText;
+        [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text goldText;
+        [SerializeField] private TMP_Text pointsText;
+        [SerializeField] private TMP_Text cardCountText;
         
         [Header("Highlight")]
         [SerializeField] private Image highlightBorder;

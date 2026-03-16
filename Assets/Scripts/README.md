@@ -161,7 +161,7 @@ GameRoot
 │   │   ├── ScorePanel
 │   │   │   ├── GoldText          ← TextMeshProUGUI
 │   │   │   └── PointsText        ← TextMeshProUGUI
-│   │   └── EnemyHand             ← EnemyHandView.cs
+│   │   └── EnemyHand             ← HorizontalLayoutGroup (karty řízeny přes CardView)
 │   ├── EnemyBar 2
 │   │   └── (stejna struktura)
 │   ├── EnemyBar 3                ← volitelne (4. hrac)
@@ -181,22 +181,24 @@ GameRoot
 │   │       ├── GoldText          ← TextMeshProUGUI
 │   │       └── PointsText        ← TextMeshProUGUI
 │   ├── PlayerHand                ← PlayerHandView.cs
-│   └── ActionBar
-│       ├── BiddingPanel
-│       │   ├── GameButton        ← Button
-│       │   ├── SevenButton       ← Button
-│       │   ├── HundredButton     ← Button
-│       │   ├── BettelButton      ← Button
-│       │   ├── DurchButton       ← Button
-│       │   └── PassButton        ← Button
-│       ├── TrumpSelectionPanel
-│       │   ├── HeartsButton      ← Button
-│       │   ├── DiamondsButton    ← Button
-│       │   ├── ClubsButton       ← Button
-│       │   └── SpadesButton      ← Button
-│       └── PlayPanel
-│           ├── MarriageButton    ← Button
-│           └── DrawButton        ← Button
+│   ├── MarriageButton            ← Button (jen kdyz hrac vynasi a ma hlasku)
+│   └── Modals
+│       ├── BiddingModal          ← modal vyjizdi pri fazi Bidding
+│       │   ├── ModalBackground   ← Image (polopruhledne pozadi)
+│       │   └── ModalPanel
+│       │       ├── GameButton    ← Button
+│       │       ├── SevenButton   ← Button
+│       │       ├── HundredButton ← Button
+│       │       ├── BettelButton  ← Button
+│       │       ├── DurchButton   ← Button
+│       │       └── PassButton    ← Button
+│       └── TrumpSelectionModal   ← modal vyjizdi pri fazi Declaring
+│           ├── ModalBackground   ← Image (polopruhledne pozadi)
+│           └── ModalPanel
+│               ├── HeartsButton  ← Button
+│               ├── DiamondsButton ← Button
+│               ├── ClubsButton   ← Button
+│               └── SpadesButton  ← Button
 ├── Main Camera
 └── EventSystem                   ← POVINNE pro UI interakce
 ```
@@ -225,7 +227,7 @@ GameRoot
 Header:     #47597A  rgb(71, 89, 122)
 Table:      #6B8C78  rgb(107, 140, 120)
 PlayArea:   #8C6B6B  rgb(140, 107, 107)
-ActionBar:  #383838  rgb(56, 56, 56)
+Modals:     #383838  rgb(56, 56, 56)
 Gold:       #D9BF40  rgb(217, 191, 64)
 ```
 
@@ -250,7 +252,7 @@ Na kazdy Manager GameObject pripoj odpovidajici skript a prirad reference v insp
 | `audioManager` | -- | Nutne jen kdyz autoDiscovery = false |
 | `vfxManager` | -- | Nutne jen kdyz autoDiscovery = false |
 
-ServiceLocator je **singleton** -- v cele scene smi byt jen jeden. Pri `autoDiscovery = true` pouzije `FindObjectOfType<T>()` pro kazdy manager.
+ServiceLocator je **singleton** -- v cele scene smi byt jen jeden. Pri `autoDiscovery = true` pouzije `FindAnyObjectByType<T>()` pro kazdy manager.
 
 ### 3.2 GameSettingsManager
 
@@ -528,7 +530,7 @@ Ridi animace karet (deal, play, flip, select, discard).
 
 ### 6.1 MariasGameController (core, non-MonoBehaviour)
 
-`MariasGameController` je cista C# trida (ne MonoBehaviour). Vytvari se v kodu:
+`MariasGameController` je cista C# trida (ne MonoBehaviour). Prijima `IDeckFactory` pres konstruktor -- balicek se vytvari z dat (CardDatabaseSO), ne hardcoded:
 
 ```csharp
 // V MariasGameManager.cs (MonoBehaviour ve scene)
@@ -536,7 +538,10 @@ private MariasGameController _gameController;
 
 void Start()
 {
-    _gameController = new MariasGameController();
+    var locator = ServiceLocator.Instance;
+    var deckFactory = locator.GetDeckFactory();
+
+    _gameController = new MariasGameController(deckFactory);
     SubscribeToEvents();
     StartNewGame();
 }
@@ -545,6 +550,7 @@ void StartNewGame()
 {
     var playerNames = new List<string> { "Ty", "Pepa AI", "Karel AI" };
     _gameController.StartNewGame(playerNames);
+    // Controller si internre vytvori balicek pres IDeckFactory a zamicha ho
 }
 ```
 
@@ -621,18 +627,32 @@ PlayerFactory pouziva strategie podle `aiDifficultyLevel` v GameSettings:
 
 ### 6.4 Vytvoreni a michani balicku
 
+Balicek se vytvari data-driven z `CardDatabaseSO` pres `IDeckFactory`. Controller si ho vytvori sam:
+
+```
+CardDataManager → IDeckFactory (DeckFactoryService)
+                       ↓ CreateStandardDeck()
+MariasGameController(IDeckFactory)
+                       ↓ StartNewGame()
+                  _deckFactory.CreateStandardDeck() → IDeck (32 karet z CardDatabaseSO)
+                  (IDeck as IShuffleable).Shuffle()
+```
+
+Rucni vytvoreni balicku (napr. pro testovani):
 ```csharp
 var deckFactory = cardDataManager.GetDeckFactory();
-var deck = deckFactory.CreateStandardDeck(); // 32 karet
+var deck = deckFactory.CreateStandardDeck(); // 32 karet z CardDatabaseSO
 if (deck is IShuffleable shuffleable)
 {
     shuffleable.Shuffle();
 }
 ```
 
-### 6.5 Bidding UI callbacks
+### 6.5 UI callbacks (modaly + MarriageButton)
 
-Kazde tlacitko v BiddingPanel musi volat prislusnou metodu:
+Drazba a vyber trumfu se resi pres **modaly** ktere vyjizdeji v prislusne fazi hry. MarriageButton je videt jen kdyz hrac vynasi a ma v ruce hlasku (K+Q stejne barvy).
+
+**BiddingModal** -- zobrazit pri `OnPhaseChanged(GamePhase.Bidding)`, skryt po volbe:
 
 | Button | OnClick() callback |
 |--------|-------------------|
@@ -643,7 +663,7 @@ Kazde tlacitko v BiddingPanel musi volat prislusnou metodu:
 | DurchButton | `OnBidDurch()` -> `_gameController.MakeBid(0, BidOption.Durch)` |
 | PassButton | `OnBidPass()` -> `_gameController.MakeBid(0, BidOption.Pass)` |
 
-Trump selection:
+**TrumpSelectionModal** -- zobrazit pri `OnPhaseChanged(GamePhase.Declaring)`, skryt po volbe:
 
 | Button | OnClick() callback |
 |--------|-------------------|
@@ -652,14 +672,21 @@ Trump selection:
 | ClubsButton | `_gameController.DeclareTrump(CardSuit.Clubs)` |
 | SpadesButton | `_gameController.DeclareTrump(CardSuit.Spades)` |
 
+**MarriageButton** -- zobrazit kdyz `OnPlayerTurnStarted` a hrac vynasi a ma hlasku:
+
+| Button | OnClick() callback |
+|--------|-------------------|
+| MarriageButton | `_gameController.DeclareMarriage(suit)` |
+
 ### Kontrolni seznam faze 6
 
 - [ ] MariasGameManager.cs MonoBehaviour ve scene
-- [ ] MariasGameController vytvoren v Start()
+- [ ] MariasGameController vytvoren v Start() s `IDeckFactory` z ServiceLocator
 - [ ] Vsechny eventy subscribnuty
 - [ ] Vsechna UI tlacitka propojena s callbacks
-- [ ] BiddingPanel se zobrazuje/skryva podle faze
-- [ ] TrumpSelectionPanel se zobrazuje/skryva podle faze
+- [ ] BiddingModal se zobrazuje/skryva podle faze (Bidding)
+- [ ] TrumpSelectionModal se zobrazuje/skryva podle faze (Declaring)
+- [ ] MarriageButton se zobrazuje jen kdyz hrac vynasi a ma hlasku
 
 ---
 
@@ -733,6 +760,7 @@ Po stisknuti Play zkontroluj v Console:
 | Priznak | Pricina | Reseni |
 |---------|---------|--------|
 | Karty se nezobrazuji | Chybi sprite v CardDataSO | Prirad sprites |
+| NullReferenceException pri dealingu | Prazdny balicek (IDeckFactory chybi) | Zkontroluj CardDatabaseSO a CardThemeSO v CardDataManager |
 | Kliknuti nereaguje | Chybi EventSystem | Pridej EventSystem do scene |
 | Kliknuti nereaguje | Chybi GraphicRaycaster na Canvas | Pridej GraphicRaycaster |
 | Kliknuti nereaguje | Chybi Button na CardView | Pridej Button komponentu |
@@ -882,8 +910,9 @@ PlayerFactory
 ├── CreateStandardGame(settings, avatarProvider)  -- 1 human + 2 AI = 3 hraci
 └── CreateAIGame(settings)                        -- 3 AI (testing)
 
-DeckFactoryService
+DeckFactoryService (IDeckFactory)
 └── CreateStandardDeck()  -- 32 karet z CardDatabaseSO
+    └── Injektovan do MariasGameController pres konstruktor
 
 CardViewFactory
 └── CreateCardView(card, parent, faceUp, interactive)
@@ -1092,7 +1121,7 @@ Vyhraje nejsilnejsi karta ve vedouci barve. Pokud byly zahrany trumfy, vyhraje n
 
 | Chyba | Reseni |
 |-------|--------|
-| `CardDatabaseSO is not assigned!` | Prirad `CardDatabase.asset` v CardDataManager inspektoru |
+| `CardDatabaseSO is not assigned!` | Prirad `CardDatabase.asset` nebo `CardThemeSO` v CardDataManager inspektoru |
 | `GameSettingsSO is not assigned!` | Prirad `GameSettings.asset` v GameSettingsManager inspektoru |
 | `Sprite not found` | Over ze sprites jsou ve spravne slozce (Resources nebo SO) |
 | `Expected 32 cards, found X` | Doplni vsechny karty do CardDatabaseSO |

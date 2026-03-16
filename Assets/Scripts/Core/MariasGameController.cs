@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using MariasGame.Core.Interfaces;
 
 namespace MariasGame.Core
 {
@@ -11,8 +12,9 @@ namespace MariasGame.Core
     /// </summary>
     public class MariasGameController
     {
+        private readonly IDeckFactory _deckFactory;
         private MariasGameState _state;
-        private Deck _deck;
+        private IDeck _deck;
         
         #region Events
         
@@ -42,14 +44,19 @@ namespace MariasGame.Core
         #endregion
         
         public MariasGameState State => _state;
-        
+
+        public MariasGameController(IDeckFactory deckFactory)
+        {
+            _deckFactory = deckFactory ?? throw new ArgumentNullException(nameof(deckFactory));
+        }
+
         /// <summary>
         /// Vytvoří novou hru.
         /// </summary>
         public void StartNewGame(List<string> playerNames)
         {
             _state = MariasGameState.CreateNew(playerNames);
-            _deck = new Deck();
+            _deck = _deckFactory.CreateStandardDeck();
             
             OnGameStarted?.Invoke();
             
@@ -62,7 +69,8 @@ namespace MariasGame.Core
         /// </summary>
         private void ShuffleAndDeal()
         {
-            _deck.Shuffle();
+            if (_deck is IShuffleable shuffleable)
+                shuffleable.Shuffle();
             _state.Phase = GamePhase.Dealing;
             OnPhaseChanged?.Invoke(_state.Phase);
             

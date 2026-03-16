@@ -37,7 +37,7 @@ namespace MariasGame.Editor
             // Zobrazit status
             if (cardDataManager != null)
             {
-                var cardDatabase = cardDataManager.GetCardDatabaseSO();
+                var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
                 var themes = cardDataManager.GetAllThemes();
                 
                 if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -88,7 +88,7 @@ namespace MariasGame.Editor
             }
             
             // Zkontrolovat, zda má CardDataManager přiřazené CardDatabaseSO nebo CardThemeSO
-            var cardDatabase = cardDataManager.GetCardDatabaseSO();
+            var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
             var themes = cardDataManager.GetAllThemes();
             
             if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -151,7 +151,7 @@ namespace MariasGame.Editor
             }
             
             // Zkontrolovat, zda má CardDataManager přiřazené CardDatabaseSO nebo CardThemeSO
-            var cardDatabase = cardDataManager.GetCardDatabaseSO();
+            var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
             var themes = cardDataManager.GetAllThemes();
             
             if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -182,7 +182,7 @@ namespace MariasGame.Editor
             }
             else
             {
-                Debug.Log($"✓ Card data loaded: Sprite={cardData.Sprite != null}, Sound={cardData.Sound != null}, Animation={cardData.Animation != null}");
+                Debug.Log($"✓ Card data loaded: Sprite={cardData.Sprite != null}");
             }
         }
         

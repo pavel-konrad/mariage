@@ -20,7 +20,7 @@ namespace MariasGame.Core
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<ServiceLocator>();
+                    _instance = FindAnyObjectByType<ServiceLocator>();
                     if (_instance == null)
                     {
                         var go = new GameObject("[ServiceLocator]");
@@ -56,7 +56,6 @@ namespace MariasGame.Core
         // Events pro notifikaci o změnách služeb
         public event Action OnServicesReady;
         public event Action<string> OnServiceRegistered;
-        public event Action<string> OnServiceUnregistered;
         
         private bool _isInitialized = false;
         public bool IsInitialized => _isInitialized;
@@ -98,22 +97,22 @@ namespace MariasGame.Core
             Debug.Log("[ServiceLocator] Auto-discovering managers...");
             
             if (cardDataManager == null)
-                cardDataManager = FindObjectOfType<CardDataManager>();
+                cardDataManager = FindAnyObjectByType<CardDataManager>();
             
             if (settingsManager == null)
-                settingsManager = FindObjectOfType<GameSettingsManager>();
+                settingsManager = FindAnyObjectByType<GameSettingsManager>();
             
             if (avatarManager == null)
-                avatarManager = FindObjectOfType<AvatarManager>();
+                avatarManager = FindAnyObjectByType<AvatarManager>();
             
             if (enemyManager == null)
-                enemyManager = FindObjectOfType<EnemyManager>();
+                enemyManager = FindAnyObjectByType<EnemyManager>();
             
             if (audioManager == null)
-                audioManager = FindObjectOfType<AudioManager>();
+                audioManager = FindAnyObjectByType<AudioManager>();
             
             if (vfxManager == null)
-                vfxManager = FindObjectOfType<VFXManager>();
+                vfxManager = FindAnyObjectByType<VFXManager>();
             
             LogDiscoveryResults();
         }

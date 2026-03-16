@@ -77,7 +77,7 @@ namespace MariasGame.Managers
                 return;
             }
             
-            _cardDataService = new CardDataService(database, _assetLoaderService);
+            _cardDataService = new CardDataService(database);
             _deckFactoryService = new DeckFactoryService(database);
         }
         
@@ -166,6 +166,7 @@ namespace MariasGame.Managers
         /// </summary>
         public CardThemeSO GetActiveTheme()
         {
+            EnsureInitialized();
             return _themeService?.GetActiveTheme();
         }
         
@@ -174,6 +175,7 @@ namespace MariasGame.Managers
         /// </summary>
         public IReadOnlyList<CardThemeSO> GetAllThemes()
         {
+            EnsureInitialized();
             return _themeService?.GetAllThemes() ?? new List<CardThemeSO>().AsReadOnly();
         }
         

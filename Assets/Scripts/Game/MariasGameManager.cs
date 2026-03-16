@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using MariasGame.Core;
 using MariasGame.Core.Interfaces;
 using MariasGame.UI;
@@ -24,16 +25,18 @@ namespace MariasGame.Game
         [SerializeField] private PlayerInfoPanel playerInfoPanel;
         [SerializeField] private PlayerInfoPanel[] enemyInfoPanels;
         
-        [Header("Action Panels")]
-        [SerializeField] private GameObject biddingPanel;
-        [SerializeField] private GameObject trumpSelectionPanel;
+        [Header("Modals")]
+        [SerializeField] private BiddingModal biddingModal;
+        [SerializeField] private TrumpSelectionModal trumpSelectionModal;
+        [SerializeField] private MarriageButton marriageButton;
+
+        [Header("Panels")]
         [SerializeField] private GameObject talonPanel;
-        [SerializeField] private GameObject playPanel;
         
         [Header("Status UI")]
-        [SerializeField] private Text gamePhaseText;
+        [SerializeField] private TMP_Text gamePhaseText;
         [SerializeField] private Image trumpIndicator;
-        [SerializeField] private Text trumpText;
+        [SerializeField] private TMP_Text trumpText;
         
         [Header("Prefabs")]
         [SerializeField] private CardView cardViewPrefab;
@@ -71,12 +74,14 @@ namespace MariasGame.Game
             _cardDataProvider = locator.GetCardDataProvider();
             _themeProvider = locator.GetCardThemeProvider();
             
-            // Vytvořit game controller
-            _gameController = new MariasGameController();
-            
+            // Vytvořit game controller s IDeckFactory z dat
+            var deckFactory = locator.GetDeckFactory();
+            _gameController = new MariasGameController(deckFactory);
+
             // Subscribnout na eventy
             SubscribeToEvents();
-            
+            SubscribeToModalEvents();
+
             // Skrýt všechny panely
             HideAllPanels();
             
@@ -104,6 +109,52 @@ namespace MariasGame.Game
             _gameController.OnBettelDeclared += HandleBettelDeclared;
             _gameController.OnDurchDeclared += HandleDurchDeclared;
         }
+
+        /// <summary>
+        /// Subscribne na eventy z modálních komponent.
+        /// </summary>
+        private void SubscribeToModalEvents()
+        {
+            if (biddingModal != null)
+            {
+                biddingModal.OnBidSelected += (bid) =>
+                {
+                    if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
+                        _gameController.MakeBid(LocalPlayerIndex, bid);
+                };
+            }
+
+            if (trumpSelectionModal != null)
+            {
+                Debug.Log("[MariasGameManager] Subscribing to TrumpSelectionModal.OnTrumpSelected");
+                trumpSelectionModal.OnTrumpSelected += (suit) =>
+                {
+                    Debug.Log($"[MariasGameManager] OnTrumpSelected fired! Suit: {suit}, DeclarerIndex: {_gameController.State.DeclarerIndex}, LocalPlayerIndex: {LocalPlayerIndex}");
+                    if (_gameController.State.DeclarerIndex == LocalPlayerIndex)
+                    {
+                        Debug.Log($"[MariasGameManager] Calling DeclareTrump({suit})");
+                        _gameController.DeclareTrump(suit);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[MariasGameManager] DeclarerIndex ({_gameController.State.DeclarerIndex}) != LocalPlayerIndex ({LocalPlayerIndex}), ignoring trump selection");
+                    }
+                };
+            }
+            else
+            {
+                Debug.LogError("[MariasGameManager] trumpSelectionModal is NULL!");
+            }
+
+            if (marriageButton != null)
+            {
+                marriageButton.OnMarriageDeclared += (suit) =>
+                {
+                    _gameController.DeclareMarriage(suit);
+                    marriageButton.HideButton();
+                };
+            }
+        }
         
         /// <summary>
         /// Spustí novou hru.
@@ -129,51 +180,96 @@ namespace MariasGame.Game
         private void HandleCardsDealt(int playerIndex, List<Card> cards)
         {
             Debug.Log($"[MariasGameManager] Hráč {playerIndex} dostal {cards.Count} karet");
-            
+
+            // Talon karty — zobrazit lícem nahoru v talonPanelu, po chvíli přesunout do ruky
+            if (_gameController.State.Phase == GamePhase.TakingTalon)
+            {
+                Transform talonTarget = talonPanel != null ? talonPanel.transform : playerHandContainer;
+                foreach (var card in cards)
+                {
+                    var cv = CreateCardView(card, talonTarget, false);
+                    if (cv != null) cv.FlipCard(true);
+                }
+                if (talonPanel != null) ArrangeCardsInHand(talonPanel.transform);
+                StartCoroutine(MoveTalonCardsToHand(new List<Card>(cards)));
+                ServiceLocator.Instance.GetAudioManager()?.PlayCardDeal();
+                return;
+            }
+
             Transform container = GetHandContainer(playerIndex);
             bool isEnemy = playerIndex != LocalPlayerIndex;
-            
+
             foreach (var card in cards)
             {
                 CreateCardView(card, container, isEnemy);
             }
-            
+
+            // Rozložit karty v ruce
+            ArrangeCardsInHand(container);
+
             // Aktualizovat info panel
             UpdatePlayerCards(playerIndex);
-            
+
             ServiceLocator.Instance.GetAudioManager()?.PlayCardDeal();
         }
         
         private void HandlePhaseChanged(GamePhase phase)
         {
             Debug.Log($"[MariasGameManager] Fáze: {phase}");
-            
+
             // Aktualizovat UI text
             UpdatePhaseText(phase);
-            
+
             // Zobrazit/skrýt příslušné panely
             UpdatePanelsForPhase(phase);
+
+            // Povolit drag na kartách při odhazování do talonu
+            if (phase == GamePhase.DiscardingTalon)
+            {
+                EnablePlayerCardDrags();
+            }
         }
         
         private void HandlePlayerTurnStarted(int playerIndex)
         {
             Debug.Log($"[MariasGameManager] Na tahu: Hráč {playerIndex}");
-            
+
             // Zvýraznit aktivního hráče
             HighlightActivePlayer(playerIndex);
-            
+
+            // MarriageButton — zobrazit jen když lokální hráč vynáší a má hlášku
+            if (playerIndex == LocalPlayerIndex &&
+                _gameController.State.Phase == GamePhase.Playing &&
+                _gameController.State.CurrentTrick.Count == 0)
+            {
+                var marriages = _gameController.GetPossibleMarriages();
+                marriageButton?.UpdateState(marriages);
+            }
+            else
+            {
+                marriageButton?.HideButton();
+            }
+
             // Pokud je na tahu AI a jsme ve fázi hraní
-            if (playerIndex != LocalPlayerIndex && 
+            if (playerIndex != LocalPlayerIndex &&
                 _gameController.State.Phase == GamePhase.Playing)
             {
                 StartCoroutine(AIPlayCoroutine(playerIndex));
             }
-            
+
             // Pokud je na tahu AI a jsme v dražbě
-            if (playerIndex != LocalPlayerIndex && 
+            if (playerIndex != LocalPlayerIndex &&
                 _gameController.State.Phase == GamePhase.Bidding)
             {
                 StartCoroutine(AIBidCoroutine(playerIndex));
+            }
+
+            // Zakázat drag, když není tah lokálního hráče nebo nejsme v Playing/DiscardingTalon fázi
+            var currentPhase = _gameController.State.Phase;
+            if (playerIndex != LocalPlayerIndex ||
+                (currentPhase != GamePhase.Playing && currentPhase != GamePhase.DiscardingTalon))
+            {
+                DisableAllCardDrags();
             }
         }
         
@@ -184,11 +280,20 @@ namespace MariasGame.Game
             // Přesunout kartu do trick containeru
             if (_cardViews.TryGetValue(card, out var cardView))
             {
+                // Uložit původní parent pro aktualizaci layoutu
+                var previousParent = cardView.transform.parent;
+                
                 // Otočit kartu lícem nahoru (i pro AI)
                 cardView.FlipCard(true);
                 
-                // Přesunout do trick area
-                cardView.transform.SetParent(trickContainer);
+                // Přesunout do trick area (worldPositionStays=false pro správné UI pozicování)
+                cardView.transform.SetParent(trickContainer, false);
+                
+                // Aktualizovat layout předchozího containeru (ruka hráče)
+                if (previousParent != null)
+                {
+                    ArrangeCardsInHand(previousParent);
+                }
                 
                 // Pozice podle pořadí ve štychu
                 int trickPosition = _gameController.State.CurrentTrick.Count;
@@ -216,8 +321,8 @@ namespace MariasGame.Game
                     trickContainer.position);
             }
             
-            // Počkat a pak schovat karty
-            StartCoroutine(ClearTrickAfterDelay());
+            // Počkat a pak schovat karty daného štychu (ne všechny v trickContainer!)
+            StartCoroutine(ClearTrickAfterDelay(new List<Card>(cards)));
         }
         
         private void HandleTrumpDeclared(CardSuit trumpSuit)
@@ -283,7 +388,7 @@ namespace MariasGame.Game
             // Zvýraznit hratelné karty pouze pro lokálního hráče
             if (_gameController.State.CurrentPlayerIndex != LocalPlayerIndex)
                 return;
-            
+
             foreach (var kvp in _cardViews)
             {
                 // Pouze karty v ruce hráče
@@ -291,6 +396,10 @@ namespace MariasGame.Game
                 {
                     bool isPlayable = legalPlays.Contains(kvp.Key);
                     SetCardInteractable(kvp.Value, isPlayable);
+
+                    // Drag povolit jen pro hratelné karty
+                    var dragHandler = kvp.Value.GetComponent<CardDragHandler>();
+                    dragHandler?.SetDraggable(isPlayable);
                 }
             }
         }
@@ -337,41 +446,103 @@ namespace MariasGame.Game
                 return null;
             }
             
-            var cardView = Instantiate(cardViewPrefab, container);
+            // DŮLEŽITÉ: worldPositionStays = false pro správné pozicování UI elementů v Canvasu
+            var cardView = Instantiate(cardViewPrefab, container, false);
+            
+            // Kompletní reset RectTransform
+            var rectTransform = cardView.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.localScale = Vector3.one;
+                rectTransform.localRotation = Quaternion.identity;
+                rectTransform.anchoredPosition = Vector2.zero;
+                
+                // Nastavit anchory na střed (layout je posune)
+                rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            }
+            
             var cardWithState = new CardWithState(card.Suit, card.Rank, CardState.InHand);
             
             cardView.SetCard(cardWithState, _cardDataProvider, _themeProvider, isEnemy);
             
-            // Přidat click handler pro hráčovy karty
+            // Přidat tap/drag handler pro hráčovy karty
             if (!isEnemy)
             {
-                var button = cardView.GetComponent<Button>();
-                if (button == null) 
-                    button = cardView.gameObject.AddComponent<Button>();
-                
-                // Capture card in closure
+                // Zajistit raycast pro detekci dotyku
+                var image = cardView.GetComponent<Image>();
+                if (image != null)
+                {
+                    image.raycastTarget = true;
+                }
+
+                var dragHandler = cardView.gameObject.AddComponent<CardDragHandler>();
                 var capturedCard = card;
-                button.onClick.AddListener(() => OnCardClicked(capturedCard));
+
+                // Tap → nadzvednutí / výběr pro discard
+                dragHandler.OnTapped += () => OnCardTapped(capturedCard);
+
+                // Vytažení nahoru přes práh → zahrání karty
+                dragHandler.OnPlayTriggered += () => OnCardDropped(capturedCard);
+
+                // Drag je povolen jen v Playing fázi (nastaví se dynamicky)
+                dragHandler.SetDraggable(false);
             }
             
             _cardViews[card] = cardView;
             return cardView;
         }
         
-        private void OnCardClicked(Card card)
+        /// <summary>
+        /// Tap na kartu — nadzvedne ji nebo vybere pro discard.
+        /// </summary>
+        private void OnCardTapped(Card card)
         {
-            var state = _gameController.State;
-            
-            // V různých fázích různé chování
-            switch (state.Phase)
+            var phase = _gameController.State.Phase;
+
+            switch (phase)
             {
-                case GamePhase.Playing:
-                    TryPlayCard(card);
-                    break;
-                    
                 case GamePhase.DiscardingTalon:
                     ToggleCardForDiscard(card);
                     break;
+                default:
+                    if (_cardViews.TryGetValue(card, out var cardView))
+                    {
+                        ToggleCardLift(cardView);
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Swipe nahoru přes práh — zahraje kartu nebo ji vybere k odhození.
+        /// </summary>
+        private void OnCardDropped(Card card)
+        {
+            var phase = _gameController.State.Phase;
+
+            if (phase == GamePhase.Playing)
+            {
+                TryPlayCard(card);
+            }
+            else if (phase == GamePhase.DiscardingTalon)
+            {
+                SwipeCardForDiscard(card);
+            }
+        }
+
+        /// <summary>
+        /// Přepíná nadzvednutí karty (vizuální feedback).
+        /// </summary>
+        private void ToggleCardLift(CardView cardView)
+        {
+            var rect = cardView.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                bool isLifted = rect.anchoredPosition.y > 10f;
+                float newY = isLifted ? 0f : 30f;
+                rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, newY);
             }
         }
         
@@ -391,6 +562,24 @@ namespace MariasGame.Game
             }
         }
         
+        /// <summary>
+        /// Swipe pro odhození karty do talonu (bez vizuálního nadzvednutí — to řeší throw animace).
+        /// </summary>
+        private void SwipeCardForDiscard(Card card)
+        {
+            if (_selectedForDiscard.Contains(card)) return;
+            if (_selectedForDiscard.Count >= 2) return;
+
+            _selectedForDiscard.Add(card);
+
+            Debug.Log($"Swipe odhození: {_selectedForDiscard.Count}/2");
+
+            if (_selectedForDiscard.Count == 2)
+            {
+                StartCoroutine(ConfirmDiscardAfterDelay(0.5f));
+            }
+        }
+
         private void ToggleCardForDiscard(Card card)
         {
             if (_selectedForDiscard.Contains(card))
@@ -404,8 +593,20 @@ namespace MariasGame.Game
                 SetCardSelected(_cardViews[card], true);
             }
             
-            // Pokud máme 2 karty, můžeme potvrdit
             Debug.Log($"Vybráno k odhození: {_selectedForDiscard.Count}/2");
+            
+            // Automaticky potvrdit, když jsou vybrány 2 karty
+            if (_selectedForDiscard.Count == 2)
+            {
+                // Malé zpoždění pro vizuální feedback
+                StartCoroutine(ConfirmDiscardAfterDelay(0.5f));
+            }
+        }
+        
+        private System.Collections.IEnumerator ConfirmDiscardAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            ConfirmDiscard();
         }
         
         public void ConfirmDiscard()
@@ -415,19 +616,41 @@ namespace MariasGame.Game
                 Debug.Log("Musíš vybrat přesně 2 karty!");
                 return;
             }
-            
+
             _gameController.DiscardToTalon(_selectedForDiscard);
-            
-            // Zničit odhozené karty
+
+            // Přesunout odhozené karty do talonPanelu (lícem dolů)
             foreach (var card in _selectedForDiscard)
             {
                 if (_cardViews.TryGetValue(card, out var cardView))
                 {
-                    _cardViews.Remove(card);
-                    Destroy(cardView.gameObject);
+                    if (talonPanel != null)
+                    {
+                        // Reaktivovat (ThrowAway ji deaktivuje) a resetovat pozici
+                        cardView.gameObject.SetActive(true);
+                        var rect = cardView.GetComponent<RectTransform>();
+                        if (rect != null) rect.anchoredPosition = Vector2.zero;
+
+                        cardView.FlipCard(false);
+                        cardView.transform.SetParent(talonPanel.transform, false);
+                    }
+                    else
+                    {
+                        _cardViews.Remove(card);
+                        Destroy(cardView.gameObject);
+                    }
                 }
             }
-            
+
+            // Rozložit karty v talonPanelu
+            if (talonPanel != null)
+            {
+                ArrangeCardsInHand(talonPanel.transform);
+            }
+
+            // Aktualizovat layout ruky
+            ArrangeCardsInHand(playerHandContainer);
+
             _selectedForDiscard.Clear();
         }
         
@@ -469,36 +692,88 @@ namespace MariasGame.Game
             rect.anchoredPosition = new Vector2(xOffset, 0);
         }
         
-        private void UpdatePanelsForPhase(GamePhase phase)
+        /// <summary>
+        /// Oznámí CardHandLayout komponentě, že se změnil počet karet.
+        /// Layout logiku řeší CardHandLayout (SRP).
+        /// </summary>
+        private void ArrangeCardsInHand(Transform container)
         {
-            HideAllPanels();
-            
-            switch (phase)
+            if (container == null) return;
+
+            var handLayout = container.GetComponent<CardHandLayout>();
+            if (handLayout == null)
             {
-                case GamePhase.Bidding:
-                    if (biddingPanel != null) biddingPanel.SetActive(true);
-                    break;
-                    
-                case GamePhase.DiscardingTalon:
-                    if (talonPanel != null) talonPanel.SetActive(true);
-                    break;
-                    
-                case GamePhase.Declaring:
-                    if (trumpSelectionPanel != null) trumpSelectionPanel.SetActive(true);
-                    break;
-                    
-                case GamePhase.Playing:
-                    if (playPanel != null) playPanel.SetActive(true);
-                    break;
+                handLayout = container.gameObject.AddComponent<CardHandLayout>();
+            }
+            handLayout.SetDirty();
+        }
+
+        private IEnumerator MoveTalonCardsToHand(List<Card> talonCards)
+        {
+            yield return new WaitForSeconds(2f);
+
+            foreach (var card in talonCards)
+            {
+                if (_cardViews.TryGetValue(card, out var cardView))
+                {
+                    cardView.transform.SetParent(playerHandContainer, false);
+
+                    var dragHandler = cardView.GetComponent<CardDragHandler>();
+                    dragHandler?.SetDraggable(true);
+                }
+            }
+
+            ArrangeCardsInHand(playerHandContainer);
+        }
+
+        private void EnablePlayerCardDrags()
+        {
+            foreach (var kvp in _cardViews)
+            {
+                if (kvp.Value.transform.parent == playerHandContainer)
+                {
+                    var dragHandler = kvp.Value.GetComponent<CardDragHandler>();
+                    dragHandler?.SetDraggable(true);
+                }
+            }
+        }
+
+        private void DisableAllCardDrags()
+        {
+            foreach (var kvp in _cardViews)
+            {
+                var dragHandler = kvp.Value.GetComponent<CardDragHandler>();
+                dragHandler?.SetDraggable(false);
             }
         }
         
+        private void UpdatePanelsForPhase(GamePhase phase)
+        {
+            HideAllPanels();
+
+            switch (phase)
+            {
+                case GamePhase.Bidding:
+                    biddingModal?.Show();
+                    break;
+
+                case GamePhase.TakingTalon:
+                case GamePhase.DiscardingTalon:
+                    if (talonPanel != null) talonPanel.SetActive(true);
+                    break;
+
+                case GamePhase.Declaring:
+                    trumpSelectionModal?.Show();
+                    break;
+            }
+        }
+
         private void HideAllPanels()
         {
-            if (biddingPanel != null) biddingPanel.SetActive(false);
-            if (trumpSelectionPanel != null) trumpSelectionPanel.SetActive(false);
+            biddingModal?.Hide();
+            trumpSelectionModal?.Hide();
+            marriageButton?.HideButton();
             if (talonPanel != null) talonPanel.SetActive(false);
-            if (playPanel != null) playPanel.SetActive(false);
         }
         
         private void UpdatePhaseText(GamePhase phase)
@@ -587,26 +862,19 @@ namespace MariasGame.Game
             };
         }
         
-        private IEnumerator ClearTrickAfterDelay()
+        private IEnumerator ClearTrickAfterDelay(List<Card> trickCards)
         {
             yield return new WaitForSeconds(trickClearDelay);
-            
-            // Zničit CardViews ve trick containeru
-            if (trickContainer != null)
+
+            // Zničit pouze CardViews z dokončeného štychu (ne nově zahrané karty dalšího štychu)
+            foreach (var card in trickCards)
             {
-                var cardsToRemove = new List<Card>();
-                
-                foreach (var kvp in _cardViews)
+                if (_cardViews.TryGetValue(card, out var cardView))
                 {
-                    if (kvp.Value != null && kvp.Value.transform.parent == trickContainer)
+                    if (cardView != null)
                     {
-                        cardsToRemove.Add(kvp.Key);
-                        Destroy(kvp.Value.gameObject);
+                        Destroy(cardView.gameObject);
                     }
-                }
-                
-                foreach (var card in cardsToRemove)
-                {
                     _cardViews.Remove(card);
                 }
             }
@@ -636,92 +904,13 @@ namespace MariasGame.Game
         
         #endregion
         
-        #region Bidding UI Callbacks
-        
-        public void OnBidGame()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Game);
-        }
-        
-        public void OnBidSeven()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Seven);
-        }
-        
-        public void OnBidHundred()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Hundred);
-        }
-        
-        public void OnBidBettel()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Bettel);
-        }
-        
-        public void OnBidDurch()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Durch);
-        }
-        
-        public void OnBidPass()
-        {
-            if (_gameController.State.CurrentPlayerIndex == LocalPlayerIndex)
-                _gameController.MakeBid(LocalPlayerIndex, MariasGameRules.BidOption.Pass);
-        }
-        
-        #endregion
-        
-        #region Trump Selection UI Callbacks
-        
-        public void OnSelectHearts()
-        {
-            if (_gameController.State.DeclarerIndex == LocalPlayerIndex)
-                _gameController.DeclareTrump(CardSuit.Hearts);
-        }
-        
-        public void OnSelectDiamonds()
-        {
-            if (_gameController.State.DeclarerIndex == LocalPlayerIndex)
-                _gameController.DeclareTrump(CardSuit.Diamonds);
-        }
-        
-        public void OnSelectClubs()
-        {
-            if (_gameController.State.DeclarerIndex == LocalPlayerIndex)
-                _gameController.DeclareTrump(CardSuit.Clubs);
-        }
-        
-        public void OnSelectSpades()
-        {
-            if (_gameController.State.DeclarerIndex == LocalPlayerIndex)
-                _gameController.DeclareTrump(CardSuit.Spades);
-        }
-        
-        #endregion
-        
-        #region Play UI Callbacks
-        
-        public void OnDeclareMarriage()
-        {
-            var marriages = _gameController.GetPossibleMarriages();
-            if (marriages.Count > 0)
-            {
-                // Hlásit první dostupnou hlášku
-                // TODO: Nechat hráče vybrat, pokud má více
-                _gameController.DeclareMarriage(marriages[0]);
-            }
-        }
-        
+        #region Public Callbacks
+
         public void OnNewGame()
         {
             StartNewGame();
         }
-        
+
         #endregion
     }
 }

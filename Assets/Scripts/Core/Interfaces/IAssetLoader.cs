@@ -8,8 +8,6 @@ namespace MariasGame.Core.Interfaces
     public interface IAssetLoader
     {
         Sprite LoadSprite(string spritePath);
-        AudioClip LoadSound(string soundPath);
-        AnimationClip LoadAnimation(string animationPath);
     }
 }
 

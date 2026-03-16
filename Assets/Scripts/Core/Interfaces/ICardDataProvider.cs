@@ -12,14 +12,13 @@ namespace MariasGame.Core.Interfaces
     }
     
     /// <summary>
-    /// Unity data karty (sprite, sound, animace).
+    /// Unity data karty (sprite).
+    /// Zvuky a animace jsou řízeny centrálně přes AudioManager a CardAnimationController.
     /// </summary>
     [System.Serializable]
     public class CardData
     {
         public Sprite Sprite;
-        public AudioClip Sound;
-        public AnimationClip Animation;
     }
 }
 
