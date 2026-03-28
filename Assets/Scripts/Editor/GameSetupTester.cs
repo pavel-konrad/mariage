@@ -37,7 +37,7 @@ namespace MariasGame.Editor
             // Zobrazit status
             if (cardDataManager != null)
             {
-                var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
+                var cardDatabase = cardDataManager.GetActiveTheme()?.CardDatabase;
                 var themes = cardDataManager.GetAllThemes();
                 
                 if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -88,7 +88,7 @@ namespace MariasGame.Editor
             }
             
             // Zkontrolovat, zda má CardDataManager přiřazené CardDatabaseSO nebo CardThemeSO
-            var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
+            var cardDatabase = cardDataManager.GetActiveTheme()?.CardDatabase;
             var themes = cardDataManager.GetAllThemes();
             
             if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -130,9 +130,9 @@ namespace MariasGame.Editor
                 return;
             }
             
-            IAvatarProvider avatarProvider = avatarManager != null ? avatarManager.GetAvatarProvider() : null;
-            
-            var players = PlayerFactory.CreateStandardGame(settingsManager, avatarProvider);
+            var avatarService = avatarManager?.GetAvatarService();
+
+            var players = PlayerFactory.CreateStandardGame(settingsManager, avatarService);
             Debug.Log($"✓ Players created: {players.Count}");
             
             foreach (var player in players)
@@ -151,7 +151,7 @@ namespace MariasGame.Editor
             }
             
             // Zkontrolovat, zda má CardDataManager přiřazené CardDatabaseSO nebo CardThemeSO
-            var cardDatabase = cardDataManager.GetActiveTheme()?.cardDatabase;
+            var cardDatabase = cardDataManager.GetActiveTheme()?.CardDatabase;
             var themes = cardDataManager.GetAllThemes();
             
             if (cardDatabase == null && (themes == null || themes.Count == 0))
@@ -167,22 +167,22 @@ namespace MariasGame.Editor
                 return;
             }
             
-            var cardDataProvider = cardDataManager.GetCardDataProvider();
-            if (cardDataProvider == null)
+            var cardDataService = cardDataManager.GetCardDataService();
+            if (cardDataService == null)
             {
-                Debug.LogError("CardDataProvider is not available! Check CardDataManager initialization and assigned ScriptableObjects.");
-                EditorUtility.DisplayDialog("Error", "CardDataProvider is not available! Check that CardDatabaseSO or CardThemeSO is properly assigned.", "OK");
+                Debug.LogError("CardDataService is not available! Check CardDataManager initialization and assigned ScriptableObjects.");
+                EditorUtility.DisplayDialog("Error", "CardDataService is not available! Check that CardDatabaseSO or CardThemeSO is properly assigned.", "OK");
                 return;
             }
-            
-            var cardData = cardDataProvider.GetCardData(CardSuit.Hearts, CardRank.Ace);
-            if (cardData == null)
+
+            var sprite = cardDataService.GetCardSprite(CardSuit.Hearts, CardRank.Ace);
+            if (sprite == null)
             {
-                Debug.LogWarning("Card data is null. This might mean the card doesn't exist in the database or sprites are not assigned.");
+                Debug.LogWarning("Card sprite is null. This might mean the card doesn't exist in the database or sprites are not assigned.");
             }
             else
             {
-                Debug.Log($"✓ Card data loaded: Sprite={cardData.Sprite != null}");
+                Debug.Log($"✓ Card sprite loaded: {sprite.name}");
             }
         }
         

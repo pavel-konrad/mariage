@@ -7,200 +7,136 @@ using MariasGame.Services;
 
 namespace MariasGame.Managers
 {
-    /// <summary>
-    /// Manager pro správu dat karet a témat balíčků.
-    /// Poskytuje CardDataService, AssetLoaderService, DeckFactoryService, CardThemeService.
-    /// Podporuje více témat balíčků s možností přepínání.
-    /// </summary>
     public class CardDataManager : MonoBehaviour
     {
-        [Header("Card Themes")]
-        [SerializeField] private List<CardThemeSO> availableThemes = new List<CardThemeSO>();
-        [SerializeField] private CardThemeSO defaultTheme;
-        
+        [SerializeField] private List<CardThemeConfig> availableThemes = new List<CardThemeConfig>();
+        [SerializeField] private CardThemeConfig defaultTheme;
+
         [Header("Legacy (Deprecated)")]
-        [SerializeField] private CardDatabaseSO cardDatabaseSO; // Pro zpětnou kompatibilitu
-        
+        [SerializeField] private CardDatabase cardDatabase;
+
         private CardDataService _cardDataService;
         private AssetLoaderService _assetLoaderService;
         private DeckFactoryService _deckFactoryService;
         private CardThemeService _themeService;
-        
-        void Awake()
-        {
-            InitializeServices();
-        }
-        
-        /// <summary>
-        /// Inicializuje služby pro práci s kartami.
-        /// </summary>
+
+        void Awake() => InitializeServices();
+
         private void InitializeServices()
         {
             _assetLoaderService = new AssetLoaderService();
-            
-            // Pokud máme téma, použijeme je
+
             if (availableThemes != null && availableThemes.Count > 0)
             {
                 _themeService = new CardThemeService(availableThemes, defaultTheme);
                 var activeTheme = _themeService.GetActiveTheme();
-                
-                if (activeTheme != null && activeTheme.cardDatabase != null)
-                {
-                    InitializeServicesWithDatabase(activeTheme.cardDatabase);
-                }
+
+                if (activeTheme != null && activeTheme.CardDatabase != null)
+                    InitializeServicesWithDatabase(activeTheme.CardDatabase);
                 else
                 {
                     Debug.LogError("[CardDataManager] No valid theme or card database found!");
                     FallbackToLegacyDatabase();
                 }
             }
-            else if (cardDatabaseSO != null)
+            else if (cardDatabase != null)
             {
-                // Fallback na legacy CardDatabaseSO
-                Debug.LogWarning("[CardDataManager] Using legacy CardDatabaseSO. Consider using CardThemeSO instead.");
-                InitializeServicesWithDatabase(cardDatabaseSO);
+                Debug.LogWarning("[CardDataManager] Using legacy CardDatabase. Consider using CardThemeConfig instead.");
+                InitializeServicesWithDatabase(cardDatabase);
             }
             else
             {
                 Debug.LogError("[CardDataManager] No card database or themes assigned!");
             }
         }
-        
-        /// <summary>
-        /// Inicializuje služby s konkrétní CardDatabaseSO.
-        /// </summary>
-        private void InitializeServicesWithDatabase(CardDatabaseSO database)
+
+        private void InitializeServicesWithDatabase(CardDatabase database)
         {
             if (database == null)
             {
-                Debug.LogError("[CardDataManager] CardDatabaseSO is null!");
+                Debug.LogError("[CardDataManager] CardDatabase is null!");
                 return;
             }
-            
             _cardDataService = new CardDataService(database);
             _deckFactoryService = new DeckFactoryService(database);
         }
-        
-        /// <summary>
-        /// Fallback na legacy CardDatabaseSO.
-        /// </summary>
+
         private void FallbackToLegacyDatabase()
         {
-            if (cardDatabaseSO != null)
-            {
-                InitializeServicesWithDatabase(cardDatabaseSO);
-            }
+            if (cardDatabase != null)
+                InitializeServicesWithDatabase(cardDatabase);
         }
-        
-        /// <summary>
-        /// Zajistí, že jsou služby inicializované.
-        /// Volá se automaticky před poskytnutím služby.
-        /// </summary>
+
         private void EnsureInitialized()
         {
             if (_cardDataService == null && _deckFactoryService == null)
-            {
                 InitializeServices();
-            }
         }
-        
-        /// <summary>
-        /// Získá službu pro poskytování dat karet.
-        /// </summary>
-        public ICardDataProvider GetCardDataProvider()
+
+        public CardDataService GetCardDataService()
         {
             EnsureInitialized();
             return _cardDataService;
         }
-        
-        /// <summary>
-        /// Získá službu pro načítání Unity assetů.
-        /// </summary>
-        public IAssetLoader GetAssetLoader()
+
+        public AssetLoaderService GetAssetLoaderService()
         {
             EnsureInitialized();
             return _assetLoaderService;
         }
-        
-        /// <summary>
-        /// Získá službu pro vytváření balíčků.
-        /// </summary>
+
         public IDeckFactory GetDeckFactory()
         {
             EnsureInitialized();
             return _deckFactoryService;
         }
-        
-        /// <summary>
-        /// Získá službu pro správu témat.
-        /// </summary>
-        public ICardThemeProvider GetThemeProvider()
+
+        public CardThemeService GetThemeService()
         {
             EnsureInitialized();
             return _themeService;
         }
-        
-        /// <summary>
-        /// Nastaví aktivní téma balíčku.
-        /// </summary>
-        public void SetActiveTheme(CardThemeSO theme)
+
+        public void SetActiveTheme(CardThemeConfig theme)
         {
             if (_themeService == null)
             {
                 Debug.LogError("[CardDataManager] ThemeService is not initialized!");
                 return;
             }
-            
             _themeService.SetActiveTheme(theme);
-            
-            // Reinitializovat služby s novým tématem
             var activeTheme = _themeService.GetActiveTheme();
-            if (activeTheme != null && activeTheme.cardDatabase != null)
-            {
-                InitializeServicesWithDatabase(activeTheme.cardDatabase);
-            }
+            if (activeTheme != null && activeTheme.CardDatabase != null)
+                InitializeServicesWithDatabase(activeTheme.CardDatabase);
         }
-        
-        /// <summary>
-        /// Získá aktuálně aktivní téma.
-        /// </summary>
-        public CardThemeSO GetActiveTheme()
+
+        public CardThemeConfig GetActiveTheme()
         {
             EnsureInitialized();
             return _themeService?.GetActiveTheme();
         }
-        
-        /// <summary>
-        /// Získá všechna dostupná téma.
-        /// </summary>
-        public IReadOnlyList<CardThemeSO> GetAllThemes()
+
+        public IReadOnlyList<CardThemeConfig> GetAllThemes()
         {
             EnsureInitialized();
-            return _themeService?.GetAllThemes() ?? new List<CardThemeSO>().AsReadOnly();
+            return _themeService?.GetAllThemes() ?? new List<CardThemeConfig>().AsReadOnly();
         }
-        
-        /// <summary>
-        /// Legacy: Nastaví nové CardDatabaseSO (deprecated, použijte SetActiveTheme).
-        /// </summary>
+
         [System.Obsolete("Use SetActiveTheme instead.")]
-        public void SetCardDatabaseSO(CardDatabaseSO newDatabaseSO)
+        public void SetCardDatabase(CardDatabase newDatabase)
         {
-            if (newDatabaseSO != null)
+            if (newDatabase != null)
             {
-                cardDatabaseSO = newDatabaseSO;
-                InitializeServicesWithDatabase(newDatabaseSO);
+                cardDatabase = newDatabase;
+                InitializeServicesWithDatabase(newDatabase);
             }
         }
-        
-        /// <summary>
-        /// Legacy: Získá CardDatabaseSO (deprecated, použijte GetActiveTheme).
-        /// </summary>
+
         [System.Obsolete("Use GetActiveTheme instead.")]
-        public CardDatabaseSO GetCardDatabaseSO()
+        public CardDatabase GetCardDatabase()
         {
             var activeTheme = GetActiveTheme();
-            return activeTheme != null ? activeTheme.cardDatabase : cardDatabaseSO;
+            return activeTheme != null ? activeTheme.CardDatabase : cardDatabase;
         }
     }
 }
-

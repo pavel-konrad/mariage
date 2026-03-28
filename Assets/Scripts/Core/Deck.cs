@@ -37,16 +37,33 @@ namespace MariasGame.Core
         /// Vrací kopii karet v balíčku (immutable).
         /// </summary>
         public IReadOnlyList<Card> Cards => cards.AsReadOnly();
+
+        /// <summary>
+        /// Ověří, zda balíček obsahuje zadanou kartu.
+        /// </summary>
+        public bool Contains(Card card)
+        {
+            return card != null && cards.Contains(card);
+        }
         
         /// <summary>
         /// Přidá kartu do balíčku.
         /// </summary>
-        public void AddCard(Card card)
+        public bool AddCard(Card card)
         {
-            if (card != null)
-            {
-                cards.Add(card);
-            }
+            if (card == null) return false;
+
+            cards.Add(card);
+            return true;
+        }
+
+        /// <summary>
+        /// Odebere kartu z balíčku.
+        /// </summary>
+        public bool RemoveCard(Card card)
+        {
+            if (card == null) return false;
+            return cards.Remove(card);
         }
         
         /// <summary>
