@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9e7fc661d3bf49428f8d634a5c0b3f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 0bfd5159833bf44ed91a8e33bf175dee, type: 3}
   m_Name: Enemy2 1
   m_EditorClassIdentifier: 
-  enemyName: Oscar
-  enemyAvatarSprite: {fileID: -234215056163715833, guid: 18d62358540af4b868589e075e4973ab, type: 3}
-  enemyId: 3
+  <EnemyName>k__BackingField: 
+  <EnemyAvatarSprite>k__BackingField: {fileID: 0}
+  <EnemyId>k__BackingField: 0

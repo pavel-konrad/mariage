@@ -6,10 +6,9 @@ namespace MariasGame.Core
 {
     /// <summary>
     /// Základní implementace hráče.
-    /// Implementuje IPlayer, IHand, IBetManager.
     /// Čistá třída bez Unity závislostí.
     /// </summary>
-    public abstract class PlayerBase : IPlayer, IHand, IBetManager
+    public abstract class PlayerBase : IPlayer
     {
         private readonly int _id;
         private readonly string _name;
@@ -46,7 +45,7 @@ namespace MariasGame.Core
         }
         public abstract bool IsHuman { get; }
         
-        // IHand implementation
+        // Hand implementation
         public IReadOnlyList<Card> Hand => hand.AsReadOnly();
         public int HandCount => hand.Count;
         public bool HasCards => hand.Count > 0;
@@ -69,7 +68,7 @@ namespace MariasGame.Core
             hand.Clear();
         }
         
-        // IBetManager implementation
+        // Bet management
         public int CurrentBet => _currentBet;
         
         public void SetBet(int betAmount)

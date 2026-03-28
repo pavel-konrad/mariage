@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b16f7ae2688a947aaa2c99e97a3f9ae1, type: 3}
+  m_Script: {fileID: 11500000, guid: b71edbdf9457b4a8daa4286ae2f5bcee, type: 3}
   m_Name: AvatarData 2
   m_EditorClassIdentifier: 
-  avatarName: Avatar 2
-  avatarSprite: {fileID: -5099292496197868168, guid: 22dfef598f9984c40b04c7acd26a7da2, type: 3}
-  avatarId: 3
+  <AvatarName>k__BackingField: Gary
+  <AvatarSprite>k__BackingField: {fileID: 0}
+  <AvatarId>k__BackingField: 3

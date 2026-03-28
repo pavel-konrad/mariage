@@ -6,23 +6,23 @@ namespace MariasGame.Services
 {
     /// <summary>
     /// Služba pro poskytování nastavení hry.
-    /// Používá GameSettingsSO a může používat ISettingsRepository pro persistenci.
+    /// Používá GameSettingsConfig a může používat ISettingsRepository pro persistenci.
     /// </summary>
     public class SettingsService : ISettingsProvider
     {
-        private readonly GameSettingsSO _settingsSO;
+        private readonly GameSettingsConfig _settingsConfig;
         private readonly ISettingsRepository _repository;
         private GameSettings _cachedSettings;
-        
-        public SettingsService(GameSettingsSO settingsSO, ISettingsRepository repository = null)
+
+        public SettingsService(GameSettingsConfig settingsConfig, ISettingsRepository repository = null)
         {
-            _settingsSO = settingsSO ?? throw new System.ArgumentNullException(nameof(settingsSO));
+            _settingsConfig = settingsConfig ?? throw new System.ArgumentNullException(nameof(settingsConfig));
             _repository = repository;
         }
         
         /// <summary>
         /// Získá aktuální nastavení hry.
-        /// Pokud existuje repository, načte z něj, jinak použije GameSettingsSO.
+        /// Pokud existuje repository, načte z něj, jinak použije GameSettingsConfig.
         /// </summary>
         public GameSettings GetSettings()
         {
@@ -35,7 +35,7 @@ namespace MariasGame.Services
             }
             else
             {
-                _cachedSettings = _settingsSO.ToGameSettings();
+                _cachedSettings = _settingsConfig.ToGameSettings();
             }
             
             return _cachedSettings;

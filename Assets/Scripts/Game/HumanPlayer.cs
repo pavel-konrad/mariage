@@ -1,14 +1,12 @@
 using MariasGame.Core;
-using MariasGame.Core.Interfaces;
 
 namespace MariasGame.Game
 {
     /// <summary>
     /// Implementace lidského hráče.
-    /// Dědí z PlayerBase a implementuje IHumanPlayer.
     /// Legalita tahů je řízena MariasGameController přes MariasGameRules.GetLegalPlays().
     /// </summary>
-    public class HumanPlayer : PlayerBase, IHumanPlayer
+    public class HumanPlayer : PlayerBase
     {
         public HumanPlayer(int id, string name, int startingCash = 1000, int avatarIndex = 0)
             : base(id, name, startingCash, avatarIndex)

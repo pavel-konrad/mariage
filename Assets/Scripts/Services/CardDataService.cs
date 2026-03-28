@@ -1,42 +1,29 @@
 using UnityEngine;
 using MariasGame.Core;
-using MariasGame.Core.Interfaces;
 using MariasGame.ScriptableObjects;
-using CardData = MariasGame.Core.Interfaces.CardData;
 
 namespace MariasGame.Services
 {
-    /// <summary>
-    /// Služba pro poskytování dat karet.
-    /// Načítá data z CardDatabaseSO a poskytuje CardData.
-    /// </summary>
-    public class CardDataService : ICardDataProvider
+    public class CardDataService
     {
-        private readonly CardDatabaseSO _database;
+        private readonly CardDatabase _database;
 
-        public CardDataService(CardDatabaseSO database)
+        public CardDataService(CardDatabase database)
         {
             _database = database ?? throw new System.ArgumentNullException(nameof(database));
         }
 
-        /// <summary>
-        /// Získá CardData pro konkrétní kartu.
-        /// </summary>
-        public CardData GetCardData(CardSuit suit, CardRank rank)
+        public Sprite GetCardSprite(CardSuit suit, CardRank rank)
         {
-            var cardDataSO = _database.GetCardData(suit, rank);
+            var cardData = _database.GetCardData(suit, rank);
 
-            if (cardDataSO == null)
+            if (cardData == null)
             {
                 Debug.LogWarning($"[CardDataService] Card data not found for {rank} of {suit}");
-                return new CardData();
+                return null;
             }
 
-            return new CardData
-            {
-                Sprite = cardDataSO.cardSprite
-            };
+            return cardData.CardSprite;
         }
     }
 }
-

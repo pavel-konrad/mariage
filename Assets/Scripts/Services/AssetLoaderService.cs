@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MariasGame.Core.Interfaces;
 
 namespace MariasGame.Services
 {
@@ -8,13 +7,10 @@ namespace MariasGame.Services
     /// Služba pro načítání Unity assetů.
     /// Cachuje načtené assety pro lepší výkon.
     /// </summary>
-    public class AssetLoaderService : IAssetLoader
+    public class AssetLoaderService
     {
         private readonly Dictionary<string, Sprite> _spriteCache = new Dictionary<string, Sprite>();
 
-        /// <summary>
-        /// Načte sprite z Unity Resources.
-        /// </summary>
         public Sprite LoadSprite(string spritePath)
         {
             if (string.IsNullOrEmpty(spritePath))
@@ -36,13 +32,9 @@ namespace MariasGame.Services
             return sprite;
         }
 
-        /// <summary>
-        /// Vyčistí cache assetů.
-        /// </summary>
         public void ClearCache()
         {
             _spriteCache.Clear();
         }
     }
 }
-

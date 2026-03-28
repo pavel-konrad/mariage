@@ -6,10 +6,9 @@ namespace MariasGame.Game
 {
     /// <summary>
     /// Implementace AI hráče pro Mariáš.
-    /// Dědí z PlayerBase a implementuje IAIPlayer.
     /// Používá IAIStrategy pro výběr karet, dražbu, trumfy a odhazování.
     /// </summary>
-    public class AIPlayer : PlayerBase, IAIPlayer
+    public class AIPlayer : PlayerBase
     {
         private readonly IAIStrategy _strategy;
 

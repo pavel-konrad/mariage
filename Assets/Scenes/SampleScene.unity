@@ -326,26 +326,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd68b46afa124012a8323db4a93a4b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MariasGame.Game.MariasGameManager
-  playerHandContainer: {fileID: 1403446415}
-  enemyHandContainers:
-  - {fileID: 320049721}
-  - {fileID: 516324025}
-  trickContainer: {fileID: 1983158877}
-  deckContainer: {fileID: 2038020728}
-  playerInfoPanel: {fileID: 125767633}
-  enemyInfoPanels:
-  - {fileID: 1139701006}
-  - {fileID: 1393201011}
-  biddingModal: {fileID: 734298630}
-  trumpSelectionModal: {fileID: 1203431671}
-  marriageButton: {fileID: 0}
-  talonPanel: {fileID: 1350888122}
-  gamePhaseText: {fileID: 5726592346647247504}
-  trumpIndicator: {fileID: 1194575399}
-  trumpText: {fileID: 0}
-  cardViewPrefab: {fileID: 1139069201501541370, guid: b521facc1d05e46e8b0ecf6f9e3c8518, type: 3}
-  aiThinkDelay: 1
-  trickClearDelay: 1.5
 --- !u!4 &13712114
 Transform:
   m_ObjectHideFlags: 0
@@ -1754,11 +1734,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 262875132}
   m_CullTransparentMesh: 1
---- !u!224 &320049721 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 5949045774913900915, guid: 214685ca3e27243b188ca0181261845f, type: 3}
-  m_PrefabInstance: {fileID: 5855501808189001553}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &440486431
 GameObject:
   m_ObjectHideFlags: 0
@@ -2095,11 +2070,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 978.8667, y: 1740.2075}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!224 &516324025 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 5949045774913900915, guid: 214685ca3e27243b188ca0181261845f, type: 3}
-  m_PrefabInstance: {fileID: 1157568339}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &518517597
 GameObject:
   m_ObjectHideFlags: 0
@@ -2676,7 +2646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82024cf9ca7c64e14a6c60121102828e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settingsSO: {fileID: 11400000, guid: 3323d22d6ba7e4abe83d3af5eb85fc11, type: 2}
+  settingsConfig: {fileID: 11400000, guid: 3323d22d6ba7e4abe83d3af5eb85fc11, type: 2}
   autoSave: 1
   saveKey: GameSettings
 --- !u!4 &662580978
@@ -2895,7 +2865,7 @@ MonoBehaviour:
   availableThemes:
   - {fileID: 11400000, guid: 383d95ec893864a2b8d9acee9b15a7c6, type: 2}
   defaultTheme: {fileID: 11400000, guid: 383d95ec893864a2b8d9acee9b15a7c6, type: 2}
-  cardDatabaseSO: {fileID: 11400000, guid: 4d88f950e8f89468098c0d7b468b04b0, type: 2}
+  cardDatabase: {fileID: 0}
 --- !u!4 &712572974
 Transform:
   m_ObjectHideFlags: 0
@@ -3335,13 +3305,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b058f87c1dbf4419a5da939d6d9cf06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MariasGame.Core.ServiceLocator
-  autoDiscoverManagers: 1
-  cardDataManager: {fileID: 712572973}
-  settingsManager: {fileID: 662580977}
-  avatarManager: {fileID: 1400905307}
-  enemyManager: {fileID: 10683501}
-  audioManager: {fileID: 1803069099}
-  vfxManager: {fileID: 447353692}
 --- !u!4 &828710705
 Transform:
   m_ObjectHideFlags: 0
@@ -5019,17 +4982,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1119779179}
   m_CullTransparentMesh: 1
---- !u!114 &1139701006 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7403645089456334215, guid: 214685ca3e27243b188ca0181261845f, type: 3}
-  m_PrefabInstance: {fileID: 5855501808189001553}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e18a497bfe0416e8b5763f6c942ece, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MariasGame.UI.PlayerInfoPanel
 --- !u!1001 &1157568339
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6552,17 +6504,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1381170656}
   m_CullTransparentMesh: 1
---- !u!114 &1393201011 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7403645089456334215, guid: 214685ca3e27243b188ca0181261845f, type: 3}
-  m_PrefabInstance: {fileID: 1157568339}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e18a497bfe0416e8b5763f6c942ece, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MariasGame.UI.PlayerInfoPanel
 --- !u!1 &1400905306
 GameObject:
   m_ObjectHideFlags: 0
@@ -6592,7 +6533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c222ce12557d41a287c6bb8e7f93d25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  avatarDatabaseSO: {fileID: 11400000, guid: 3988fd2b954b046549d8f97b798d93b8, type: 2}
+  avatarDatabase: {fileID: 0}
 --- !u!4 &1400905308
 Transform:
   m_ObjectHideFlags: 0

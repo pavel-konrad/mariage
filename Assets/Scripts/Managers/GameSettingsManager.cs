@@ -6,142 +6,80 @@ using MariasGame.Services;
 
 namespace MariasGame.Managers
 {
-    /// <summary>
-    /// Manager pro správu herních nastavení.
-    /// Implementuje ISettingsProvider a používá GameSettingsSO.
-    /// </summary>
     public class GameSettingsManager : MonoBehaviour, ISettingsProvider
     {
-        [Header("Game Settings")]
-        [SerializeField] private GameSettingsSO settingsSO;
-        
-        [Header("Save/Load")]
+        [SerializeField] private GameSettingsConfig settingsConfig;
+
         [SerializeField] private bool autoSave = true;
         [SerializeField] private string saveKey = "GameSettings";
-        
+
         private SettingsService _settingsService;
         private ISettingsRepository _repository;
-        
+
         void Awake()
         {
             InitializeServices();
             LoadSettings();
         }
-        
+
         void OnApplicationPause(bool pauseStatus)
         {
-            if (pauseStatus && autoSave)
-            {
-                SaveSettings();
-            }
+            if (pauseStatus && autoSave) SaveSettings();
         }
-        
+
         void OnApplicationFocus(bool hasFocus)
         {
-            if (!hasFocus && autoSave)
-            {
-                SaveSettings();
-            }
+            if (!hasFocus && autoSave) SaveSettings();
         }
-        
+
         void OnDestroy()
         {
-            if (autoSave)
-            {
-                SaveSettings();
-            }
+            if (autoSave) SaveSettings();
         }
-        
-        /// <summary>
-        /// Inicializuje služby pro správu nastavení.
-        /// </summary>
+
         private void InitializeServices()
         {
-            if (settingsSO == null)
+            if (settingsConfig == null)
             {
-                Debug.LogError("[GameSettingsManager] GameSettingsSO is not assigned!");
+                Debug.LogError("[GameSettingsManager] GameSettingsConfig is not assigned!");
                 return;
             }
-            
             _repository = new SettingsRepository(saveKey);
-            _settingsService = new SettingsService(settingsSO, _repository);
+            _settingsService = new SettingsService(settingsConfig, _repository);
         }
-        
-        /// <summary>
-        /// Načte nastavení z repository.
-        /// </summary>
-        public void LoadSettings()
-        {
-            if (_settingsService != null)
-            {
-                _settingsService.RefreshSettings();
-            }
-        }
-        
-        /// <summary>
-        /// Uloží nastavení přes repository.
-        /// </summary>
-        public void SaveSettings()
-        {
-            if (_settingsService != null)
-            {
-                _settingsService.SaveSettings();
-            }
-        }
-        
-        /// <summary>
-        /// Resetuje nastavení na defaultní hodnoty z GameSettingsSO.
-        /// </summary>
+
+        public void LoadSettings() => _settingsService?.RefreshSettings();
+
+        public void SaveSettings() => _settingsService?.SaveSettings();
+
         public void ResetToDefault()
         {
-            if (settingsSO != null && _repository != null)
+            if (settingsConfig != null && _repository != null)
             {
-                var defaultSettings = settingsSO.ToGameSettings();
-                _repository.Save(defaultSettings);
-                
-                if (_settingsService != null)
-                {
-                    _settingsService.RefreshSettings();
-                }
-                
-                Debug.Log("[GameSettingsManager] Settings reset to default values from GameSettingsSO.");
+                _repository.Save(settingsConfig.ToGameSettings());
+                _settingsService?.RefreshSettings();
+#if UNITY_EDITOR
+                Debug.Log("[GameSettingsManager] Settings reset to default values from GameSettingsConfig.");
+#endif
             }
         }
-        
-        /// <summary>
-        /// Získá aktuální nastavení hry.
-        /// </summary>
+
         public GameSettings GetSettings()
         {
-            if (_settingsService != null)
-            {
-                return _settingsService.GetSettings();
-            }
-            
-            // Fallback na GameSettingsSO
-            if (settingsSO != null)
-            {
-                return settingsSO.ToGameSettings();
-            }
-            
+            if (_settingsService != null) return _settingsService.GetSettings();
+            if (settingsConfig != null) return settingsConfig.ToGameSettings();
+
             Debug.LogWarning("[GameSettingsManager] No settings available, returning default.");
             return GameSettings.CreateDefault();
         }
-        
-        /// <summary>
-        /// Nastaví nové GameSettingsSO.
-        /// </summary>
-        public void SetSettingsSO(GameSettingsSO newSettingsSO)
+
+        public void SetSettingsConfig(GameSettingsConfig newConfig)
         {
-            if (newSettingsSO != null)
+            if (newConfig != null)
             {
-                settingsSO = newSettingsSO;
+                settingsConfig = newConfig;
                 InitializeServices();
-                
-                if (autoSave)
-                {
-                    SaveSettings();
-                }
+                if (autoSave) SaveSettings();
             }
         }
     }

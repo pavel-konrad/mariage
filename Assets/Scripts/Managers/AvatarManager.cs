@@ -1,67 +1,38 @@
 using UnityEngine;
-using MariasGame.Core.Interfaces;
 using MariasGame.ScriptableObjects;
 using MariasGame.Services;
 
 namespace MariasGame.Managers
 {
-    /// <summary>
-    /// Manager pro správu avatarů.
-    /// Poskytuje AvatarService.
-    /// </summary>
     public class AvatarManager : MonoBehaviour
     {
-        [Header("Avatar Database")]
-        [SerializeField] private AvatarDatabaseSO avatarDatabaseSO;
-        
+        [SerializeField] private AvatarDatabase avatarDatabase;
+
         private AvatarService _avatarService;
-        
-        void Awake()
+
+        void Awake() => Initialize();
+
+        private void Initialize()
         {
-            InitializeServices();
-        }
-        
-        /// <summary>
-        /// Inicializuje službu pro práci s avatary.
-        /// </summary>
-        private void InitializeServices()
-        {
-            if (avatarDatabaseSO == null)
+            if (avatarDatabase == null)
             {
-                Debug.LogError("[AvatarManager] AvatarDatabaseSO is not assigned!");
+                Debug.LogError("[AvatarManager] AvatarDatabase is not assigned!");
                 return;
             }
-            
-            _avatarService = new AvatarService(avatarDatabaseSO);
+            _avatarService = new AvatarService(avatarDatabase);
         }
-        
-        /// <summary>
-        /// Získá službu pro poskytování avatarů.
-        /// </summary>
-        public IAvatarProvider GetAvatarProvider()
+
+        public AvatarService GetAvatarService() => _avatarService;
+
+        public void SetAvatarDatabase(AvatarDatabase newDatabase)
         {
-            return _avatarService;
-        }
-        
-        /// <summary>
-        /// Nastaví nové AvatarDatabaseSO.
-        /// </summary>
-        public void SetAvatarDatabaseSO(AvatarDatabaseSO newDatabaseSO)
-        {
-            if (newDatabaseSO != null)
+            if (newDatabase != null)
             {
-                avatarDatabaseSO = newDatabaseSO;
-                InitializeServices();
+                avatarDatabase = newDatabase;
+                Initialize();
             }
         }
-        
-        /// <summary>
-        /// Získá AvatarDatabaseSO.
-        /// </summary>
-        public AvatarDatabaseSO GetAvatarDatabaseSO()
-        {
-            return avatarDatabaseSO;
-        }
+
+        public AvatarDatabase GetAvatarDatabase() => avatarDatabase;
     }
 }
-

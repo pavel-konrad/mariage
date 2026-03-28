@@ -33,7 +33,9 @@ namespace MariasGame.Services
                 string json = JsonUtility.ToJson(settings, true);
                 PlayerPrefs.SetString(_saveKey, json);
                 PlayerPrefs.Save();
+#if UNITY_EDITOR
                 Debug.Log("[SettingsRepository] Settings saved to PlayerPrefs.");
+#endif
             }
             catch (System.Exception e)
             {
@@ -48,7 +50,9 @@ namespace MariasGame.Services
         {
             if (!HasSavedSettings())
             {
+#if UNITY_EDITOR
                 Debug.Log("[SettingsRepository] No saved settings found, returning default.");
+#endif
                 return GameSettings.CreateDefault();
             }
             
@@ -63,7 +67,9 @@ namespace MariasGame.Services
                     return GameSettings.CreateDefault();
                 }
                 
+#if UNITY_EDITOR
                 Debug.Log("[SettingsRepository] Settings loaded from PlayerPrefs.");
+#endif
                 return settings;
             }
             catch (System.Exception e)

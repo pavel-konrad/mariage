@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a345e7ce8f694ac684a6785f10dd4e4, type: 3}
+  m_Script: {fileID: 11500000, guid: db91b431b0f3e43dbb991be74a469b0a, type: 3}
   m_Name: Standard_Theme_Theme
   m_EditorClassIdentifier: 
-  themeName: Standard Theme
-  themeDescription: Theme for Standard32 card deck
-  themePreview: {fileID: 0}
-  isUnlocked: 1
-  cardDatabase: {fileID: 11400000, guid: 4d88f950e8f89468098c0d7b468b04b0, type: 2}
-  cardBackSprite: {fileID: 0}
+  <ThemeName>k__BackingField: Standard
+  <ThemeDescription>k__BackingField: 
+  <ThemePreview>k__BackingField: {fileID: 0}
+  <IsUnlocked>k__BackingField: 1
+  <CardDatabase>k__BackingField: {fileID: 0}
+  <CardBackSprite>k__BackingField: {fileID: 0}

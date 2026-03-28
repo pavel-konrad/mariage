@@ -9,19 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ad3369b2fde140c4a7453b4bdd42635, type: 3}
+  m_Script: {fileID: 11500000, guid: a6961abbcd6a4473db72bc429f85e981, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  startingCash: 1000
-  minBet: 1
-  maxBet: 100
-  cardsPerPlayer: 10
-  maxPlayers: 3
-  minPlayers: 3
-  aiThinkTime: 1.5
-  aiDifficultyLevel: 1
-  cardAnimationDuration: 0.5
-  dealCardDelay: 0.2
-  masterVolume: 1
-  musicVolume: 0.7
-  sfxVolume: 1
+  <StartingCash>k__BackingField: 1000
+  <MinBet>k__BackingField: 1
+  <MaxBet>k__BackingField: 100
+  <CardsPerPlayer>k__BackingField: 10
+  <MaxPlayers>k__BackingField: 3
+  <MinPlayers>k__BackingField: 3
+  <AIThinkTime>k__BackingField: 1.5
+  <AIDifficultyLevel>k__BackingField: 1
+  <CardAnimationDuration>k__BackingField: 0.5
+  <DealCardDelay>k__BackingField: 0.2
+  <MasterVolume>k__BackingField: 1
+  <MusicVolume>k__BackingField: 0.7
+  <SFXVolume>k__BackingField: 1

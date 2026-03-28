@@ -8,28 +8,25 @@ namespace MariasGame.Services
 {
     /// <summary>
     /// Služba pro vytváření balíčků karet.
-    /// Vytváří IDeck instance z CardDatabaseSO.
+    /// Vytváří IDeck instance z CardDatabase.
     /// </summary>
     public class DeckFactoryService : IDeckFactory
     {
-        private readonly CardDatabaseSO _database;
-        
-        public DeckFactoryService(CardDatabaseSO database)
+        private readonly CardDatabase _database;
+
+        public DeckFactoryService(CardDatabase database)
         {
             _database = database ?? throw new System.ArgumentNullException(nameof(database));
         }
-        
-        /// <summary>
-        /// Vytvoří standardní balíček na základě CardDatabaseSO.
-        /// </summary>
+
         public IDeck CreateStandardDeck()
         {
             var cardsInGame = _database.GetCardsInGame();
             var cards = new List<Card>();
-            
-            foreach (var cardDataSO in cardsInGame)
+
+            foreach (var cardData in cardsInGame)
             {
-                var card = new Card(cardDataSO.suit, cardDataSO.rank);
+                var card = new Card(cardData.Suit, cardData.Rank);
                 cards.Add(card);
             }
             
