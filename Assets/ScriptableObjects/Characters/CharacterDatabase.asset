@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b88e3603fe8d6456298989ccdc967dcf, type: 3}
+  m_Name: CharacterDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::MariasGame.ScriptableObjects.CharacterDatabase
+  <Characters>k__BackingField:
+  - {fileID: 11400000, guid: 4cca43260b82f4b3b84caa7aa61adb59, type: 2}
+  - {fileID: 11400000, guid: 384eb6451a47d46a78a6dd20ea98a417, type: 2}
+  - {fileID: 11400000, guid: 1ba4ca4c9e0264518879c8f3a12818b2, type: 2}
+  - {fileID: 11400000, guid: a8acccead3e9148349f3e6c0ffbf41bb, type: 2}

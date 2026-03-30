@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEditor;
 using MariasGame.Core;
 using MariasGame.Core.Interfaces;
-using MariasGame.Game;
 using MariasGame.Managers;
 using MariasGame.ScriptableObjects;
 
@@ -15,7 +14,7 @@ namespace MariasGame.Editor
     {
         private GameSettingsManager settingsManager;
         private CardDataManager cardDataManager;
-        private AvatarManager avatarManager;
+        private CharacterManager characterManager;
         
         [MenuItem("MariasGame/Tools/Game Setup Tester")]
         public static void ShowWindow()
@@ -30,7 +29,7 @@ namespace MariasGame.Editor
             
             settingsManager = (GameSettingsManager)EditorGUILayout.ObjectField("GameSettingsManager", settingsManager, typeof(GameSettingsManager), true);
             cardDataManager = (CardDataManager)EditorGUILayout.ObjectField("CardDataManager", cardDataManager, typeof(CardDataManager), true);
-            avatarManager = (AvatarManager)EditorGUILayout.ObjectField("AvatarManager", avatarManager, typeof(AvatarManager), true);
+            characterManager = (CharacterManager)EditorGUILayout.ObjectField("CharacterManager", characterManager, typeof(CharacterManager), true);
             
             GUILayout.Space(10);
             
@@ -129,16 +128,18 @@ namespace MariasGame.Editor
                 Debug.LogError("GameSettingsManager is not assigned!");
                 return;
             }
-            
-            var avatarService = avatarManager?.GetAvatarService();
 
-            var players = PlayerFactory.CreateStandardGame(settingsManager, avatarService);
-            Debug.Log($"✓ Players created: {players.Count}");
-            
-            foreach (var player in players)
+            var service = characterManager?.GetService();
+            var characters = service?.GetAll();
+            if (characters == null || characters.Count == 0)
             {
-                Debug.Log($"  - {player.Name} (Human: {player.IsHuman}, Cash: {player.Cash})");
+                Debug.LogWarning("No characters in CharacterDatabase.");
+                return;
             }
+
+            Debug.Log($"✓ Characters loaded: {characters.Count}");
+            foreach (var c in characters)
+                Debug.Log($"  - [{c.CharacterId}] {c.CharacterName}");
         }
         
         private void TestCardData()

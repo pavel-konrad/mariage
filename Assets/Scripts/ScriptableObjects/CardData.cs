@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using MariasGame.Core;
 
 namespace MariasGame.ScriptableObjects
@@ -6,10 +7,10 @@ namespace MariasGame.ScriptableObjects
     [CreateAssetMenu(fileName = "CardData", menuName = "MariasGame/Card Data", order = 1)]
     public class CardData : ScriptableObject
     {
-        [field: SerializeField] public CardSuit Suit { get; set; }
-        [field: SerializeField] public CardRank Rank { get; set; }
-        [field: SerializeField] public bool IsInGame { get; set; } = true;
-        [field: SerializeField] public Sprite CardSprite { get; set; }
+        [field: FormerlySerializedAs("suit"), SerializeField] public CardSuit Suit { get; set; }
+        [field: FormerlySerializedAs("rank"), SerializeField] public CardRank Rank { get; set; }
+        [field: FormerlySerializedAs("isInGame"), SerializeField] public bool IsInGame { get; set; } = true;
+        [field: FormerlySerializedAs("cardSprite"), SerializeField] public Sprite CardSprite { get; set; }
 
         private void OnValidate()
         {
