@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using MariasGame.Core;
 using MariasGame.Core.Events;
 using MariasGame.Core.Interfaces;
 using MariasGame.Managers;
@@ -8,7 +9,6 @@ namespace MariasGame.Game
 {
     /// <summary>
     /// Orchestruje průběh scény: spouští hru, reaguje na konec kola.
-    /// Přebírá odpovědnost za spouštění kol od GameBootstrapper.
     /// </summary>
     public class GameFlowController : MonoBehaviour, IObserver<GameEvent>
     {
@@ -18,6 +18,7 @@ namespace MariasGame.Game
         [Header("Dependencies")]
         [SerializeField] private GameBootstrapper _bootstrapper;
         [SerializeField] private GameSessionController _sessionController;
+        [SerializeField] private CharacterManager _characterManager;
 
         [Header("Player Names")]
         [SerializeField] private string _humanPlayerName = "Ty";
@@ -34,21 +35,48 @@ namespace MariasGame.Game
 
         void OnDestroy() => _gameEvents.UnregisterObserver(this);
 
-        /// <summary>
-        /// Spustí první kolo. Voláno z GameBootstrapper.Start().
-        /// </summary>
         public void StartGame()
         {
+            ApplyLaunchContextIfAvailable();
             _bootstrapper.GameController.StartNewGame(_playerNames);
+        }
+
+        private void ApplyLaunchContextIfAvailable()
+        {
+            if (!GameLaunchContextStore.HasContext) return;
+
+            var context = GameLaunchContextStore.Current;
+            var service = _characterManager != null ? _characterManager.GetService() : null;
+
+            string humanName = string.IsNullOrWhiteSpace(context.PlayerName)
+                ? _humanPlayerName : context.PlayerName.Trim();
+
+            if (service != null && string.IsNullOrWhiteSpace(context.PlayerName))
+            {
+                var playerChar = service.GetById(context.PlayerCharacterId);
+                if (playerChar != null && !string.IsNullOrWhiteSpace(playerChar.CharacterName))
+                    humanName = playerChar.CharacterName;
+            }
+
+            string ai1Name = ResolveName(service, context.Enemy1CharacterId, _aiPlayer1Name);
+            string ai2Name = ResolveName(service, context.Enemy2CharacterId, _aiPlayer2Name);
+
+            _playerNames = new List<string> { humanName, ai1Name, ai2Name };
+        }
+
+        private static string ResolveName(Services.CharacterService service, int characterId, string fallback)
+        {
+            if (service == null) return fallback;
+            var character = service.GetById(characterId);
+            return character != null && !string.IsNullOrWhiteSpace(character.CharacterName)
+                ? character.CharacterName : fallback;
         }
 
         public void OnNotify(GameEvent e)
         {
             if (e.Type != GameEventType.GameEnded) return;
 
-            // Session data jsou zaznamenána automaticky v GameSessionController.
-            // TODO: Zobrazit výsledkový panel (Game Over UI) s daty ze _sessionController.Session.
-            // Po potvrzení hráče zavolat StartGame() pro nové kolo.
+            // TODO: Zobrazit výsledkový panel s daty ze _sessionController.Session.
         }
     }
 }

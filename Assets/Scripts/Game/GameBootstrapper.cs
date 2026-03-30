@@ -32,6 +32,9 @@ namespace MariasGame.Game
         void Awake()
         {
             var deckFactory = cardDataManager.GetDeckFactory();
+            var selectedMode = GameLaunchContextStore.HasContext && GameLaunchContextStore.Current.GameModeConfig != null
+                ? GameLaunchContextStore.Current.GameModeConfig
+                : gameModeConfig;
 
             _gameController = new MariasGameController(
                 deckFactory,
@@ -39,7 +42,7 @@ namespace MariasGame.Game
                 cardEventManager,
                 scoreEventManager);
 
-            _gameController.Initialize(gameModeConfig);
+            _gameController.Initialize(selectedMode);
             // Presentery a controllery se zaregistrují samy ve svém Awake()
         }
 

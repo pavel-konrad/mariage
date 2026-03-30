@@ -15,24 +15,36 @@ MonoBehaviour:
   <GameName>k__BackingField: Marias
   <DeckName>k__BackingField: Standard32
   <Cards>k__BackingField:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: b3ee7bdd7023a48b788fcf88d39f8234, type: 2}
+  - {fileID: 11400000, guid: faee6bedd7db143c89c7ac1fa944a6f1, type: 2}
+  - {fileID: 11400000, guid: 24249d8acee98426daddebf1ff09474a, type: 2}
+  - {fileID: 11400000, guid: 7f7bb0f51c49d43c7aa33efedf3b4121, type: 2}
+  - {fileID: 11400000, guid: db31713eca5464644943ce87e5cd9780, type: 2}
+  - {fileID: 11400000, guid: 264d4e4df20814ed2be05c7bd34081d2, type: 2}
+  - {fileID: 11400000, guid: e4558652466e64164ae8cfb38095cb40, type: 2}
+  - {fileID: 11400000, guid: 29e34694b3f8b48819589a501ec8df64, type: 2}
+  - {fileID: 11400000, guid: 28a8465a70970475bb6a1fcf6594def2, type: 2}
+  - {fileID: 11400000, guid: 2d56c4f9a45b7475296c85280e1301da, type: 2}
+  - {fileID: 11400000, guid: 6c09ac77c4dd747a787e01cde5844b57, type: 2}
+  - {fileID: 11400000, guid: aacc147dacf3d4550a67fe546d38b771, type: 2}
+  - {fileID: 11400000, guid: 5dd0c013570c748eeb09a930d5b028c6, type: 2}
+  - {fileID: 11400000, guid: 41834082a91dd4f89b53825f7e409e03, type: 2}
+  - {fileID: 11400000, guid: f6e27fbb6ce9e4850815daf6368d0b6f, type: 2}
+  - {fileID: 11400000, guid: 722083bef88444a07afc5a97aeaf07f5, type: 2}
+  - {fileID: 11400000, guid: 72f01064a7fad4ad7be439de08e440ba, type: 2}
+  - {fileID: 11400000, guid: c47d38c02390d4d409db460ef6e6f140, type: 2}
+  - {fileID: 11400000, guid: 86e8a47c5e7db4691947c78c5e08f357, type: 2}
+  - {fileID: 11400000, guid: f050d1f42829b4a40a62123bd02f5c8c, type: 2}
+  - {fileID: 11400000, guid: 7e8bcc69211eb42c0a49af2253b306b4, type: 2}
+  - {fileID: 11400000, guid: b6897c10340f94b8dac179937811cb30, type: 2}
+  - {fileID: 11400000, guid: 2fefc82a4bfee48b397e63028fc1d1c8, type: 2}
+  - {fileID: 11400000, guid: 0432c2687e6054c0392fec2598054233, type: 2}
+  - {fileID: 11400000, guid: c068825a67493475aaa3c389bb97847e, type: 2}
+  - {fileID: 11400000, guid: fae636b2db4bd4e8e9f31e65c4cd0e0e, type: 2}
+  - {fileID: 11400000, guid: ffb69fd151ce940ca98b60795f65ff8b, type: 2}
+  - {fileID: 11400000, guid: 28eb59d9f50f44d81a82616d82c1b3f1, type: 2}
+  - {fileID: 11400000, guid: f15386f8d986a469db52eccc90de34db, type: 2}
+  - {fileID: 11400000, guid: 54ec5e7d3e502402ba0658fcef8356da, type: 2}
+  - {fileID: 11400000, guid: 33467bb2ab5a446078ef52a783417ad9, type: 2}
+  - {fileID: 11400000, guid: 726a9267ed9e8419c84b9b2eb778ffee, type: 2}
   <GameSounds>k__BackingField: {fileID: 0}

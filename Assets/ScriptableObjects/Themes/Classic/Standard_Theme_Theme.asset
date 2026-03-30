@@ -16,5 +16,5 @@ MonoBehaviour:
   <ThemeDescription>k__BackingField: 
   <ThemePreview>k__BackingField: {fileID: 0}
   <IsUnlocked>k__BackingField: 1
-  <CardDatabase>k__BackingField: {fileID: 0}
+  <CardDatabase>k__BackingField: {fileID: 11400000, guid: 4d88f950e8f89468098c0d7b468b04b0, type: 2}
   <CardBackSprite>k__BackingField: {fileID: 0}

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using MariasGame.Core;
 
 namespace MariasGame.ScriptableObjects
@@ -8,10 +9,10 @@ namespace MariasGame.ScriptableObjects
     [CreateAssetMenu(fileName = "CardDatabase", menuName = "MariasGame/Card Database", order = 2)]
     public class CardDatabase : ScriptableObject
     {
-        [field: SerializeField] public string GameName { get; set; } = "Marias";
-        [field: SerializeField] public string DeckName { get; set; } = "Standard32";
-        [field: SerializeField] public List<CardData> Cards { get; set; } = new List<CardData>();
-        [field: SerializeField] public SoundData GameSounds { get; set; }
+        [field: FormerlySerializedAs("gameName"), SerializeField] public string GameName { get; set; } = "Marias";
+        [field: FormerlySerializedAs("deckName"), SerializeField] public string DeckName { get; set; } = "Standard32";
+        [field: FormerlySerializedAs("cards"), SerializeField] public List<CardData> Cards { get; set; } = new List<CardData>();
+        [field: FormerlySerializedAs("gameSounds"), SerializeField] public SoundData GameSounds { get; set; }
 
         public CardData GetCardData(CardSuit suit, CardRank rank)
             => Cards.FirstOrDefault(c => c != null && c.Suit == suit && c.Rank == rank && c.IsInGame);
@@ -21,6 +22,11 @@ namespace MariasGame.ScriptableObjects
 
         private void OnValidate()
         {
+            int totalCards = Cards == null ? 0 : Cards.Count;
+            int nullCardsCount = Cards == null ? 0 : Cards.Count(c => c == null);
+            int cardsInGameCount = Cards == null ? 0 : Cards.Count(c => c != null && c.IsInGame);
+            int missingSpritesCount = Cards == null ? 0 : Cards.Count(c => c != null && c.IsInGame && c.CardSprite == null);
+
             if (Cards == null || Cards.Count == 0)
             {
                 Debug.LogWarning($"[CardDatabase] {name}: No cards in database!");

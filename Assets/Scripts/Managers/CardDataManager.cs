@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using MariasGame.Core.Interfaces;
 using MariasGame.ScriptableObjects;
@@ -57,6 +56,7 @@ namespace MariasGame.Managers
                 Debug.LogError("[CardDataManager] CardDatabase is null!");
                 return;
             }
+
             _cardDataService = new CardDataService(database);
             _deckFactoryService = new DeckFactoryService(database);
         }
@@ -122,21 +122,5 @@ namespace MariasGame.Managers
             return _themeService?.GetAllThemes() ?? new List<CardThemeConfig>().AsReadOnly();
         }
 
-        [System.Obsolete("Use SetActiveTheme instead.")]
-        public void SetCardDatabase(CardDatabase newDatabase)
-        {
-            if (newDatabase != null)
-            {
-                cardDatabase = newDatabase;
-                InitializeServicesWithDatabase(newDatabase);
-            }
-        }
-
-        [System.Obsolete("Use GetActiveTheme instead.")]
-        public CardDatabase GetCardDatabase()
-        {
-            var activeTheme = GetActiveTheme();
-            return activeTheme != null ? activeTheme.CardDatabase : cardDatabase;
-        }
     }
 }
